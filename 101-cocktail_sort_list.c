@@ -1,98 +1,90 @@
 #include "sort.h"
-
-void swap_node_ahead(listint_t **list, listint_t **tail, listint_t **shaker);
-void swap_node_behind(listint_t **list, listint_t **tail, listint_t **shaker);
-void cocktail_sort_list(listint_t **list);
-
 /**
- * swap_node_ahead - Swap a node in a listint_t doubly-linked list
- *                   list of integers with the node ahead of it.
- * @list: A pointer to the head of a doubly-linked list of integers.
- * @tail: A pointer to the tail of the doubly-linked list.
- * @shaker: A pointer to the current swapping node of the cocktail shaker algo.
- */
-void swap_node_ahead(listint_t **list, listint_t **tail, listint_t **shaker)
+*swap - swaps 2 nodes in a doubly-linked list
+*@a: address of first node
+*@b: address of second node
+*
+*Return: void
+*/
+void swap(listint_t *a, listint_t *b)
 {
-listint_t *tmp = (*shaker)->next;
-
-if ((*shaker)->prev != NULL)
-(*shaker)->prev->next = tmp;
-else
-*list = tmp;
-tmp->prev = (*shaker)->prev;
-(*shaker)->next = tmp->next;
-if (tmp->next != NULL)
-tmp->next->prev = *shaker;
-else
-*tail = *shaker;
-(*shaker)->prev = tmp;
-tmp->next = *shaker;
-*shaker = tmp;
+	if (a->prev)
+		a->prev->next = b;
+	if (b->next)
+		b->next->prev = a;
+	a->next = b->next;
+	b->prev = a->prev;
+	a->prev = b;
+	b->next = a;
+}
+/**
+*tail_traverse- function that sorts from the tail back
+*
+*@head: head of list
+*@tail: tail of the list
+*@list: original head of the list
+*
+*Return: new head of the list
+*/
+listint_t *tail_traverse(listint_t *head, listint_t *tail, listint_t *list)
+{
+	while (tail && tail->prev)
+	{
+		if (tail->n < tail->prev->n)
+		{
+			swap(tail->prev, tail);
+			if (tail->prev == NULL)
+				list = tail;
+			print_list(list);
+		}
+		else
+			tail = tail->prev;
+		if (tail->prev == NULL)
+			head = tail;
+	}
+	return (head);
 }
 
 /**
- * swap_node_behind - Swap a node in a listint_t doubly-linked
- *                    list of integers with the node behind it.
- * @list: A pointer to the head of a doubly-linked list of integers.
- * @tail: A pointer to the tail of the doubly-linked list.
- * @shaker: A pointer to the current swapping node of the cocktail shaker algo.
- */
-void swap_node_behind(listint_t **list, listint_t **tail, listint_t **shaker)
-{
-listint_t *tmp = (*shaker)->prev;
-
-if ((*shaker)->next != NULL)
-(*shaker)->next->prev = tmp;
-else
-*tail = tmp;
-tmp->next = (*shaker)->next;
-(*shaker)->prev = tmp->prev;
-if (tmp->prev != NULL)
-tmp->prev->next = *shaker;
-else
-*list = *shaker;
-(*shaker)->next = tmp;
-tmp->prev = *shaker;
-*shaker = tmp;
-}
-
-/**
- * cocktail_sort_list - Sort a listint_t doubly-linked list of integers in
- *                      ascending order using the cocktail shaker algorithm.
- * @list: A pointer to the head of a listint_t doubly-linked list.
- */
+*cocktail_sort_list - sorts linked list using cocktail shaker sort
+*
+*@list: doubly linked list to be sorted
+*/
 void cocktail_sort_list(listint_t **list)
 {
-listint_t *tail, *shaker;
-bool shaken_not_stirred = false;
+	listint_t *tail, *head, *len;
+	int i = 0, j = 0, swaped = 1;
 
-if (list == NULL || *list == NULL || (*list)->next == NULL)
-return;
-
-for (tail = *list; tail->next != NULL;)
-tail = tail->next;
-
-while (shaken_not_stirred == false)
-{
-shaken_not_stirred = true;
-for (shaker = *list; shaker != tail; shaker = shaker->next)
-{
-if (shaker->n > shaker->next->n)
-{
-swap_node_ahead(list, &tail, &shaker);
-print_list((const listint_t *)*list);
-shaken_not_stirred = false;
-}
-}
-for (shaker = shaker->prev; shaker != *list;
-shaker = shaker->prev)
-{
-if (shaker->n < shaker->prev->n)
-{
-swap_node_behind(list, &tail, &shaker);
-print_list((const listint_t *)*list);
-shaken_not_stirred = false;
-}
-}
-}
+	if (!list || !*list)
+		return;
+	len = *list;
+	for (i = 0; len; i++)
+	{
+		len = len->next;
+	}
+	if (i < 2)
+		return;
+	head = *list;
+	while (j < i)
+	{
+		swaped = 0;
+		while (head && head->next)
+		{
+			if (head->n > head->next->n)
+			{
+				swap(head, head->next);
+				swaped++;
+				if (head->prev->prev == NULL)
+					*list = head->prev;
+				print_list(*list);
+			}
+			else
+				head = head->next;
+			if (head->next == NULL)
+				tail = head;
+		}
+		head = tail_traverse(head, tail, *list);
+		*list = head;
+		j++;
+	}
 }
