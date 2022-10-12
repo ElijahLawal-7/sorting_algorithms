@@ -48,4 +48,4 @@ void insertion_sort_list(listint_t **list)
 		actual = actual->next;
 		prev = prev->next;
 	}
-
+}
